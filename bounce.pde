@@ -1,16 +1,24 @@
 int width=600,height=600;
-
+int mouseWeight=8;
+float forceConst=150;
+float massDensity=0.2;
+final int nBalls=10;
+float maxR=60,minR=5;
+float maxV=5,minV=0;
+float epsilon=0.001;
 class ball{
-    int radius;
-    int mass;
+    float radius;
+    float mass;
+    color inside;
     PVector pos;
     PVector vel;
     PVector accl;
     PVector force;
-    ball(int tr,int m,PVector t){
+    ball(float tr,float m,PVector t,color _inside){
         radius=tr;
         mass=m;
         pos=t;
+        inside=_inside;
         vel=new PVector(0,0);
         accl=new PVector(0,0);
         force=new PVector(0,0);
@@ -52,22 +60,77 @@ class ball{
         bounceWall();
     }
     void draw(){
-        fill(255);
-        noStroke();
+        fill(inside);
+        strokeWeight(4);
+        stroke(0,0,0);
         ellipse(pos.x,pos.y,2*radius,2*radius);
     }
     
 };
 
-ball b1=new ball(20,10,new PVector(50,50));
+
+ball[] b=new ball[nBalls];
+void createBalls(ball b[],int n){
+    for(int i=0;i<n;i++){
+        float r=random(minR,maxR);
+        color c=color(random(256),random(256),random(256));
+        b[i]=new ball(r,r*massDensity,new PVector(random(r,width-r),random(r,height-r)),c);
+        b[i].vel.set(random(minV,maxV),random(minV,maxV));
+    }
+}
 void setup(){
     size(600,600);
-    b1.vel.set(5,0);
-    b1.updateForce(new PVector(0,b1.mass));
+    createBalls(b,nBalls);
 }
 
-void draw(){
-    background(100);
-    b1.update();
-    b1.draw();
+PVector ForcetoMouse(ball b){
+    PVector p=PVector.sub(new PVector(mouseX,mouseY),b.pos);
+    if(p.magSq()==0){
+        p.setMag(0);
+        return p;
+    }
+    p.setMag(forceConst * mouseWeight*b.mass/p.magSq());
+    return p;
 }
+PVector distBtwn(ball a ,ball b){
+    return PVector.sub(b.pos,a.pos);
+}
+boolean detCol(ball a, ball b){
+    PVector d=distBtwn(a,b);
+    if (d.mag()<(a.radius+b.radius)){
+        b.pos=PVector.add(a.pos,d);
+        return true;
+    }
+    else return false;
+}
+PVector compute2DVel(ball a, ball b){
+    // if(distBtwn(a,b)<epsilon)return a.vel;
+    return PVector.sub(a.vel,PVector.mult(PVector.sub(a.pos,b.pos),((2*b.mass)/(a.mass+b.mass)*PVector.dot(PVector.sub(a.vel,b.vel),PVector.sub(a.pos,b.pos))/(distBtwn(a,b).mag()*distBtwn(a,b).mag()))));
+}
+void afterCol(ball a,ball b){
+    PVector aVel_,bVel_;
+    aVel_=compute2DVel(a,b);
+    bVel_=compute2DVel(b,a);
+    a.vel=aVel_;
+    b.vel=bVel_;
+}
+void checkForCol(ball b[],int n){
+    for(int i=0;i<n-1;i++){
+        for(int j=i+1;j<n;j++){
+            if(detCol(b[i],b[j])){
+                afterCol(b[i],b[j]);
+            }
+        }
+    }
+}
+void updateAllBalls(ball b[],int n){
+    for(int i=0;i<n;i++){
+        b[i].update();
+        b[i].draw();
+    }
+}
+void draw(){
+    background(255);
+    checkForCol(b,nBalls);
+    updateAllBalls(b,nBalls);
+    }
