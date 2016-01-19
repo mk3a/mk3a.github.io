@@ -98,7 +98,9 @@ PVector distBtwn(ball a ,ball b){
 boolean detCol(ball a, ball b){
     PVector d=distBtwn(a,b);
     if (d.mag()<(a.radius+b.radius)){
-        b.pos=PVector.add(a.pos,d.mult((a.radius+b.radius)/d.mag()));
+        d.normalize();
+        d.mult((a.radius+b.radius));
+        b.pos=PVector.add(a.pos,d);
         return true;
     }
     else return false;
