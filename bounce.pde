@@ -5,7 +5,7 @@ float massDensity=0.2;
 final int nBalls=10;
 float maxR=60,minR=5;
 float maxV=7,minV=0;
-float epsilon=0.001;
+float epsilon=0.000001;
 class ball{
     float radius;
     float mass;
@@ -98,7 +98,7 @@ PVector distBtwn(ball a ,ball b){
 boolean detCol(ball a, ball b){
     PVector d=distBtwn(a,b);
     if (d.mag()<(a.radius+b.radius)){
-        if(d.mag()<epsilon){
+        if(d.mag()>epsilon){
           d.normalize();
           b.pos=PVector.add(a.pos,d.mult(a.radius+b.radius));
         }
