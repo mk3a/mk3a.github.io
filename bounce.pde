@@ -4,7 +4,7 @@ float forceConst=150;
 float massDensity=0.2;
 final int nBalls=10;
 float maxR=60,minR=5;
-float maxV=5,minV=0;
+float maxV=6,minV=0;
 float epsilon=0.001;
 class ball{
     float radius;
