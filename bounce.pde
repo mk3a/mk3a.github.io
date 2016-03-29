@@ -1,11 +1,12 @@
-int width=600,height=600;
+final int width=600,height=600;
 int mouseWeight=8;
 float forceConst=150;
 float massDensity=0.2;
-final int nBalls=10;
+int maxBalls=(int)(0.00015*width*height);
 float maxR=60,minR=5;
 float maxV=7,minV=0;
 float epsilon=0.000001;
+
 class ball{
     float radius;
     float mass;
@@ -14,6 +15,15 @@ class ball{
     PVector vel;
     PVector accl;
     PVector force;
+    ball(){
+        radius=random(minR,maxR);
+        pos=new PVector(0,0);;
+        mass=random(massDensity*radius);
+        inside=color(random(256),random(256),random(256));
+        vel=new PVector(0,0);
+        accl=new PVector(0,0);
+        force=new PVector(0,0);
+    }
     ball(float tr,float m,PVector t,color _inside){
         radius=tr;
         mass=m;
@@ -69,18 +79,26 @@ class ball{
 };
 
 
-ball[] b=new ball[nBalls];
-void createBalls(ball b[],int n){
-    for(int i=0;i<n;i++){
-        float r=random(minR,maxR);
-        color c=color(random(256),random(256),random(256));
-        b[i]=new ball(r,r*massDensity,new PVector(random(r,width-r),random(r,height-r)),c);
-        b[i].vel.set(random(minV,maxV),random(minV,maxV));
+ void addBallAt(ArrayList<ball> blist,int x,int y){
+        if(blist.size()<=maxBalls){
+        ball b=new ball();
+        b.pos.set(x,y);
+        b.vel.set(random(minV,maxV),random(minV,maxV));
+        blist.add(b);
+        }
     }
-}
+   
+//ball[] b=new ball[nBalls];
+//void createBalls(ball b[],int n){
+//    for(int i=0;i<n;i++){
+//        float r=random(minR,maxR);
+//        color c=color(random(256),random(256),random(256));
+//        b[i]=new ball(r,r*massDensity,new PVector(random(r,width-r),random(r,height-r)),c);
+//        b[i].vel.set(random(minV,maxV),random(minV,maxV));
+//    }
+//}
 void setup(){
     size(600,600);
-    createBalls(b,nBalls);
 }
 
 PVector ForcetoMouse(ball b){
@@ -116,23 +134,31 @@ void afterCol(ball a,ball b){
     a.vel=aVel_;
     b.vel=bVel_;
 }
-void checkForCol(ball b[],int n){
-    for(int i=0;i<n-1;i++){
+void checkForCol(ArrayList<ball> blist){
+    int n=blist.size();
+    for(int i=0;n>=2 && i<n-1;i++){
         for(int j=i+1;j<n;j++){
-            if(detCol(b[i],b[j])){
-                afterCol(b[i],b[j]);
+            if(detCol(blist.get(i),blist.get(j))){
+                afterCol(blist.get(i),blist.get(j));
             }
         }
     }
 }
-void updateAllBalls(ball b[],int n){
-    for(int i=0;i<n;i++){
-        b[i].update();
-        b[i].draw();
+void updateAllBalls(ArrayList<ball>blist){
+    for(ball i : blist){
+      i.update();
+      i.draw();
     }
 }
+
+ArrayList<ball> blist=new ArrayList <ball>();
 void draw(){
     background(255);
-    checkForCol(b,nBalls);
-    updateAllBalls(b,nBalls);
+    checkForCol(blist);
+    updateAllBalls(blist);
     }
+    
+void mouseReleased(){
+     addBallAt(blist,mouseX,mouseY);
+     println(blist.size());
+}
