@@ -1,2 +1,7 @@
-# mk3a.github.io
-Currently using a template for an 'Under Construction' Page. I plan on creating a proper website here once I feel confident of my web dev skills. Until then this website will just be a playing ground for me to learn.
+#Flatfy - Theme | New Version!
+
+##Responsive Mobile & Flat Design 
+Own Carousel & Bootstrap Framework CSS 
+Font Icon Svg & Animate
+
+Theme made by [Andrea Galanti](http://www.andreagalanti.it/flatfy.php)
